@@ -12,7 +12,9 @@
 #define Button_3 8
 #define Button_4 9
 
+// Tombol Mode
 #define OnOff 10
+#define OnOffJoystick 11
 
 // Joystick analog
 #define Joy_X A0
@@ -42,6 +44,7 @@ void settingPin() {
   pinMode(Button_3, INPUT_PULLUP);
   pinMode(Button_4, INPUT_PULLUP);
   pinMode(OnOff, INPUT_PULLUP);
+  pinMode(OnOffJoystick, INPUT_PULLUP);
   pinMode(Joy_X, INPUT);
   pinMode(Joy_Y, INPUT);
 }
@@ -52,25 +55,29 @@ void setup() {
 }
 
 void loop() {
-  bool aktif = digitalRead(OnOff) == LOW;
-
+  bool aktif = digitalRead(OnOff);
+  bool joy = digitalRead(OnOffJoystick);
   bool arah[4] = {false, false, false, false}; // UP, RIGHT, DOWN, LEFT
-
-  if (aktif) {
+  
+  if (aktif == LOW) {
     // Input dari Tombol 
-    arah[0] |= (digitalRead(Button_U) == LOW);
-    arah[1] |= (digitalRead(Button_F) == LOW);
-    arah[2] |= (digitalRead(Button_D) == LOW);
-    arah[3] |= (digitalRead(Button_B) == LOW);
+    if (joy == HIGH) {
+    arah[0] = digitalRead(Button_U);
+    arah[1] = digitalRead(Button_F);
+    arah[2] = digitalRead(Button_D);
+    arah[3] = digitalRead(Button_B);
+    }
+    
+    else if (joy == LOW) {
+      // Input dari Joystick Analog
+      int x = analogRead(Joy_X);
+      int y = analogRead(Joy_Y);
 
-    // Input dari Joystick Analog
-    int x = analogRead(Joy_X);
-    int y = analogRead(Joy_Y);
-
-    if (y < CENTER - THRESHOLD) arah[0] = true; // UP
-    if (y > CENTER + THRESHOLD) arah[2] = true; // DOWN
-    if (x > CENTER + THRESHOLD) arah[1] = true; // RIGHT
-    if (x < CENTER - THRESHOLD) arah[3] = true; // LEFT
+      if (y < CENTER - THRESHOLD) arah[0] = true; // UP
+      if (y > CENTER + THRESHOLD) arah[2] = true; // DOWN
+      if (x > CENTER + THRESHOLD) arah[1] = true; // RIGHT
+      if (x < CENTER - THRESHOLD) arah[3] = true; // LEFT
+    }
 
     // Kirim ke Joystick (tombol 0-3)
     for (int i = 0; i < 4; i++) {
@@ -83,7 +90,7 @@ void loop() {
     // Tombol Aksi (4–7)
     for (int i = 0; i < 4; i++) {
       int pin = i + 6; // Button_1 = pin 6
-      bool pressed = (digitalRead(pin) == LOW);
+      bool pressed = digitalRead(pin);
       if (button_status[i + 4] != pressed) {
         button_status[i + 4] = pressed;
         Joystick.setButton(i + 4, pressed);
