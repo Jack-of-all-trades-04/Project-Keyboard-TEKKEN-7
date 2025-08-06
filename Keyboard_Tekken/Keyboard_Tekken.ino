@@ -7,9 +7,9 @@
 #define Kolom4 20
 
 // Pin Baris (input pullup)
-#define Baris1 5
-#define Baris2 1
-#define Baris3 0
+#define Baris1 6
+#define Baris2 4
+#define Baris3 5
 #define Baris4 2
 #define Baris5 21
 #define Baris6 20
